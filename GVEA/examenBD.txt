@@ -1,0 +1,235 @@
+-- MySQL dump 10.13  Distrib 5.6.14, for Win64 (x86_64)
+--
+-- Host: localhost    Database: examenbd
+-- ------------------------------------------------------
+-- Server version	5.6.14
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
+DROP DATABASE `examenBD` ;
+CREATE DATABASE `examenBD` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `examenBD`;
+
+-- -----------------------------------------------------
+-- Table `Area`
+-- -----------------------------------------------------
+CREATE TABLE `Area` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+INSERT INTO `Area` VALUES (1,'Comprension lectora'),(2,'Logica Matematica');
+
+-- -----------------------------------------------------
+-- Table `Autor`
+-- -----------------------------------------------------
+CREATE TABLE `Autor` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(45) NOT NULL,
+  `telefono` VARCHAR(45) NULL,
+  `correoelectronico` VARCHAR(45) NULL,
+  `dependencia` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+INSERT INTO `Autor` VALUES ('1','Hernando Silva','2195533', 'hernando.silva@udea.edu.co','Ingenieria de Sistemas'),('2','Andres Marin','2195533', 'andres.marin@udea.edu.co','Ingenieria de Sistemas');
+-- -----------------------------------------------------
+-- Table `Enunciado`
+-- -----------------------------------------------------
+CREATE TABLE `Enunciado` (
+  `id` INT NOT NULL,
+  `url` VARCHAR(200) NOT NULL,
+  `fechaCreacion` DATE NOT NULL,
+  `orden` INT NULL,
+  `descripcion` VARCHAR(15000) NOT NULL,
+  `Area_id` INT NOT NULL,
+  `Autor_id` INT NOT NULL,
+  `despuesDe` INT NULL,
+  `paquetes` VARCHAR(20000) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_Enunciado_Area1_idx` (`Area_id` ASC),
+  INDEX `fk_Enunciado_Autor1_idx` (`Autor_id` ASC),
+  INDEX `fk_Enunciado_Enunciado1_idx` (`despuesDe` ASC),
+  CONSTRAINT `fk_Enunciado_Area1`
+    FOREIGN KEY (`Area_id`)
+    REFERENCES `Area` (`id`)
+    ON DELETE NO ACTION 
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Enunciado_Autor1`
+    FOREIGN KEY (`Autor_id`)
+    REFERENCES `Autor` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Enunciado_Enunciado1`
+    FOREIGN KEY (`despuesDe`)
+    REFERENCES `Enunciado` (`id`)
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Pregunta`
+-- -----------------------------------------------------
+CREATE TABLE `Pregunta` (
+  `id` INT NOT NULL,
+  `Enunciado_id` INT NOT NULL,
+  `url` VARCHAR(200) NOT NULL,
+  `orden` INT NULL,
+  `descripcion` VARCHAR(15000) NOT NULL,
+  `despuesDe` INT NULL,
+  PRIMARY KEY (`id`, `Enunciado_id`),
+  INDEX `fk_Pregunta_Enunciado_idx` (`Enunciado_id` ASC),
+  INDEX `fk_Pregunta_Pregunta1_idx` (`despuesDe` ASC),
+  CONSTRAINT `fk_Pregunta_Enunciado`
+    FOREIGN KEY (`Enunciado_id`)
+    REFERENCES `Enunciado` (`id`)
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE ,
+  CONSTRAINT `fk_Pregunta_Pregunta1`
+    FOREIGN KEY (`despuesDe`)
+    REFERENCES `Pregunta` (`id`)
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Opcion`
+-- -----------------------------------------------------
+CREATE TABLE `Opcion` (
+  `id` INT NOT NULL,
+  `Pregunta_id` INT NOT NULL,
+  `url` VARCHAR(200) NOT NULL,
+  `orden` INT NULL,
+  `descripcion` VARCHAR(15000) NOT NULL,
+  `despuesDe` INT NULL,
+  PRIMARY KEY (`id`, `Pregunta_id`),
+  INDEX `fk_Opcion_Pregunta1_idx` (`Pregunta_id` ASC),
+  INDEX `fk_Opcion_Opcion1_idx` (`despuesDe` ASC),
+  CONSTRAINT `fk_Opcion_Pregunta1`
+    FOREIGN KEY (`Pregunta_id`)
+    REFERENCES `Pregunta` (`id`)
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE ,
+  CONSTRAINT `fk_Opcion_Opcion1`
+    FOREIGN KEY (`despuesDe`)
+    REFERENCES `Opcion` (`id`)
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Tema`
+-- -----------------------------------------------------
+CREATE TABLE `Tema` (
+  `id` INT NOT NULL,
+  `fechaCreacion` DATE NOT NULL,
+  `year` INT NOT NULL,
+  `semestre` INT NOT NULL,
+  `jornada` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `CombinacionOpcion`
+-- -----------------------------------------------------
+CREATE TABLE `CombinacionOpcion` (
+  `id` INT NOT NULL,
+  `A` INT NULL,
+  `B` INT NULL,
+  `C` INT NULL,
+  `D` INT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+INSERT INTO `CombinacionOpcion` VALUES (1,1,2,3,4),(2,1,2,4,3),(3,1,3,2,4),(4,1,3,4,2),(5,1,4,2,3),(6,1,4,3,2),(7,2,1,3,4),(8,2,1,4,3),(9,2,3,1,4),(10,2,3,4,1),(11,2,4,1,3),(12,2,4,3,1),(13,3,1,2,4),(14,3,1,4,2),(15,3,2,1,4),(16,3,2,4,1),(17,3,4,1,2),(18,3,4,2,1),(19,4,1,2,3),(20,4,1,3,2),(21,4,2,1,3),(22,4,2,3,1),(23,4,3,1,2),(24,4,3,2,1);
+-- -----------------------------------------------------
+-- Table `PregutaTema`
+-- -----------------------------------------------------
+CREATE TABLE `PreguntaTema` (
+  `Tema_id` INT NOT NULL,
+  `Pregunta_id` INT NOT NULL,
+  `respuestaCorrecta` INT NULL,
+  `numeroPregunta` INT NULL,
+  `CombinacionOpcion_id` INT NOT NULL,
+  INDEX `fk_PreguntaTema_Tema1_idx` (`Tema_id` ASC),
+  INDEX `fk_PregutnaTema_Pregunta1_idx` (`Pregunta_id` ASC),
+  PRIMARY KEY (`Tema_id`, `Pregunta_id`),
+  INDEX `fk_PregutaTema_CombinacionOpcion1_idx` (`CombinacionOpcion_id` ASC),
+  CONSTRAINT `fk_PreguntaTema_Tema1`
+    FOREIGN KEY (`Tema_id`)
+    REFERENCES `Tema` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_PreguntaTema_Pregunta1`
+    FOREIGN KEY (`Pregunta_id`)
+    REFERENCES `Pregunta` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_PreguntaTema_CombinacionOpcion1`
+    FOREIGN KEY (`CombinacionOpcion_id`)
+    REFERENCES `CombinacionOpcion` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+
+-- -----------------------------------------------------
+-- Table `TemporalPT`
+-- -----------------------------------------------------
+CREATE TABLE `TemporalPT` (
+  `Tema_id` INT NOT NULL,
+  `Pregunta_id` INT NOT NULL,
+  `respuestaCorrecta` INT NULL,
+  `numeroPregunta` INT NULL,
+  `CombinacionOpcion_id` INT NOT NULL,
+  INDEX `fk_PregutaTema_Tema1_idx` (`Tema_id` ASC),
+  INDEX `fk_PregutaTema_Pregunta1_idx` (`Pregunta_id` ASC),
+  PRIMARY KEY (`Tema_id`, `Pregunta_id`),
+  INDEX `fk_PregutaTema_CombinacionOpcion1_idx` (`CombinacionOpcion_id` ASC),
+  CONSTRAINT `fk_TemporalPT_Tema1`
+    FOREIGN KEY (`Tema_id`)
+    REFERENCES `Tema` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_TemporalPT_Pregunta1`
+    FOREIGN KEY (`Pregunta_id`)
+    REFERENCES `Pregunta` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_TemporalPT_CombinacionOpcion1`
+    FOREIGN KEY (`CombinacionOpcion_id`)
+    REFERENCES `CombinacionOpcion` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `CredencialTema`
+-- -----------------------------------------------------
+CREATE TABLE `CredencialTema` (
+  `credencial` VARCHAR(45) NOT NULL,
+  `Tema_id` INT NOT NULL,
+  PRIMARY KEY (`credencial`, `Tema_id`),
+  INDEX `fk_CredencialTema_Tema1_idx` (`Tema_id` ASC),
+  CONSTRAINT `fk_CredencialTema_Tema1`
+    FOREIGN KEY (`Tema_id`)
+    REFERENCES `Tema` (`id`)
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
